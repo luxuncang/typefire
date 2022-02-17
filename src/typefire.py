@@ -4,8 +4,6 @@ import inspect
 from typing import List, Optional, Union, Any, Callable, Sequence, Dict
 
 from SimilarNeuron import Switch, Agreement
-from pkg_resources import fixup_namespace_packages
-
 
 class TypeFire:
 
