@@ -1,1 +1,1 @@
-from .typefire import Switch, TypeFire, typefire, composed, typeswitch
+from .typefire import Switch, TypeFire, typefire, composed, typeswitch, likefire
