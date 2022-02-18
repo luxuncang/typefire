@@ -2,6 +2,12 @@
 
 **通过装饰器零入侵性的，对 `fire-python` 的类型约束进行拓展，此外其还适用于任何函数对象进行基于注解的类型转换**
 
+## 安装
+
+```bash
+pip install typefire
+```
+
 ## Fire
 
 ```python
@@ -30,7 +36,7 @@ ps: [fire #260](https://github.com/google/python-fire/issues/260#issue-620735435
 ## TypeFire
 
 ```python
-from src import Switch, TypeFire, typefire, typeswitch
+from typefire import Switch, TypeFire, typefire, typeswitch
 import fire
 import pathlib
 

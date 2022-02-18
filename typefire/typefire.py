@@ -50,8 +50,8 @@ def likefire(obj):
     def wrapper(command: str, *args, **kwargs):
         try:
             return fire.Fire(obj, command)
-        except fire.core.FireExit:
-            return None
+        except fire.core.FireExit as e:
+            return str(e)
     return wrapper
 
 def typeswitch(obj):
