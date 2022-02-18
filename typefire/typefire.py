@@ -1,7 +1,7 @@
 import fire
 import functools
 import inspect
-from typing import List, Optional, Union, Any, Callable, Sequence, Dict
+from typing import List, Optional, Tuple, Union, Any, Callable, Sequence, Dict
 
 from SimilarNeuron import Switch, Agreement
 
@@ -20,6 +20,25 @@ class TypeFire:
         return {k:v for k,v in sig.bind(*args, **kwargs).arguments.items()}
 
     @classmethod
+    def general_parameters(cls, func: Callable, d: dict) -> Tuple[tuple, dict]:
+        args = []
+        kwargs = {} 
+        parse_bind = {name:parse.kind for name, parse in inspect.signature(func).parameters.items()}
+        for k,v in d.items():
+            if k in parse_bind:
+                if parse_bind[k] == inspect.Parameter.VAR_POSITIONAL:
+                    args += list(v)
+                elif parse_bind[k] == inspect.Parameter.VAR_KEYWORD:
+                    kwargs.update(v)
+                elif parse_bind[k] == inspect.Parameter.POSITIONAL_OR_KEYWORD:
+                    args.append(v)
+                elif parse_bind[k] == inspect.Parameter.POSITIONAL_ONLY:
+                    args.append(v)
+                elif parse_bind[k] == inspect.Parameter.KEYWORD_ONLY:
+                    kwargs[k] = v
+        return tuple(args), kwargs
+
+    @classmethod
     def switch(cls, func: Callable, *args, **kwargs) -> Dict[str, Any]:
         func_annotations = cls.get_func_annotations(func)
         func_bind = cls.get_func_bind(func, *args, **kwargs)
@@ -27,7 +46,7 @@ class TypeFire:
             if k in func_annotations:
                 if type(v) != func_annotations[k]:
                     func_bind[k] = cls.agreement.transformation(v, func_annotations[k])
-        return func_bind
+        return cls.general_parameters(func, func_bind)
 
     @classmethod
     def capture_fire(cls):
@@ -57,7 +76,8 @@ def likefire(obj):
 def typeswitch(obj):
     @functools.wraps(obj)
     def wrapper(*args, **kwargs):
-        return obj(**TypeFire.switch(obj, *args, **kwargs))
+        args, kwargs = TypeFire.switch(obj, *args, **kwargs)
+        return obj(*args, **kwargs)
     return wrapper
 
 def typefire(func):
