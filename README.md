@@ -1,5 +1,8 @@
 # TypeFire
 
+ [![CodeFactor](https://www.codefactor.io/repository/github/luxuncang/typefire/badge)](https://www.codefactor.io/repository/github/luxuncang/typefire)
+ [![GitHub](https://img.shields.io/github/license/luxuncang/typefire)](https://github.com/luxuncang/typefire/blob/master/LICENSE)
+
 **通过装饰器零入侵性的，对 `fire-python` 的类型约束进行拓展，此外其还适用于任何函数对象进行基于注解的类型转换**
 
 ## 安装
