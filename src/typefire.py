@@ -30,6 +30,10 @@ class TypeFire:
         return func_bind
 
     @classmethod
+    def capture_fire(cls):
+        fire.core.print = lambda *args, **kwargs: None
+
+    @classmethod
     def add_switch(cls, agreemap: Switch) -> Any:
         return cls.agreement.add(agreemap)
 
