@@ -53,6 +53,10 @@ class TypeFire:
         fire.core.print = lambda *args, **kwargs: None
 
     @classmethod
+    def freed_fire(cls):
+        fire.core.print = print 
+
+    @classmethod
     def add_switch(cls, agreemap: Switch) -> Any:
         return cls.agreement.add(agreemap)
 
@@ -74,11 +78,17 @@ def likefire(obj):
     return wrapper
 
 def typeswitch(obj):
+
+    @functools.wraps(obj)
+    async def awrapper(*args, **kwargs):
+        args, kwargs = TypeFire.switch(obj, *args, **kwargs)
+        return await obj(*args, **kwargs)
+
     @functools.wraps(obj)
     def wrapper(*args, **kwargs):
         args, kwargs = TypeFire.switch(obj, *args, **kwargs)
         return obj(*args, **kwargs)
-    return wrapper
+    return awrapper if inspect.iscoroutinefunction(obj) else wrapper
 
 def typefire(func):
     return likefire(typeswitch(func))
