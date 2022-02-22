@@ -50,10 +50,13 @@ class TypeFire:
 
     @classmethod
     def capture_fire(cls):
+        cls.PrintResult = fire.core._PrintResult
+        fire.core._PrintResult = lambda *args, **kwargs: None
         fire.core.print = lambda *args, **kwargs: None
 
     @classmethod
     def freed_fire(cls):
+        fire.core._PrintResult = cls.core._PrintResult
         fire.core.print = print 
 
     @classmethod
