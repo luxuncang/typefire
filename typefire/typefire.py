@@ -74,7 +74,7 @@ def likefire(obj):
         try:
             return fire.Fire(obj, command)
         except fire.core.FireExit as e:
-            return str(e)
+            return None
     return wrapper
 
 def typeswitch(obj):
