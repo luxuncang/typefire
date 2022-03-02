@@ -72,6 +72,7 @@ class TypeFire:
         return cls.agreement.clear()
 
 def likefire(obj):
+    
     @functools.wraps(obj)
     def wrapper(command: str, *args, **kwargs):
         try:
@@ -91,10 +92,24 @@ def typeswitch(obj):
     def wrapper(*args, **kwargs):
         args, kwargs = TypeFire.switch(obj, *args, **kwargs)
         return obj(*args, **kwargs)
+
     return awrapper if inspect.iscoroutinefunction(obj) else wrapper
 
 def typefire(func):
-    return likefire(typeswitch(func))
+    f = likefire(typeswitch(func))
+    
+    @functools.wraps(func)
+    def awrapper(*args, **kwargs):
+        res = f(*args, **kwargs)
+        async def _awrapper():
+            return res
+        return _awrapper()
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        return f(*args, **kwargs)
+
+    return awrapper if inspect.iscoroutinefunction(func) else wrapper
 
 def composed(*decs, is_reversed=False):
     def deco(f):
