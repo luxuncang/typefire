@@ -12,6 +12,11 @@
 pip install typefire
 ```
 
+## 特性
+- 支持注解类型转换
+- 支持 async/await
+- 零入侵性
+
 ## Fire
 
 ```python
@@ -57,4 +62,19 @@ python test_fire.py "/some_path_string"
 
 /some_path_string <class 'pathlib.WindowsPath'>
 '''
+```
+
+```python
+from typefire import Switch, TypeFire, typefire, typeswitch
+import fire
+import pathlib
+
+TypeFire.add_switch(Switch(str, pathlib.Path, lambda p: pathlib.Path(p)))
+
+@typefire
+def main(path: pathlib.Path, *args, **kwargs):
+    print(path, type(path))
+
+main("/some_path_string")
+main("--path=/some_path_string")
 ```

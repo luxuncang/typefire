@@ -72,14 +72,24 @@ class TypeFire:
         return cls.agreement.clear()
 
 def likefire(obj):
-    
+
+    @functools.wraps(obj)
+    def awrapper(command: str, *args, **kwargs):
+        try:
+            res = fire.core.Fire(obj, command)
+        except Exception as e:
+            res = None
+        async def _awrapper():
+            return res
+        return _awrapper()
+
     @functools.wraps(obj)
     def wrapper(command: str, *args, **kwargs):
         try:
             return fire.Fire(obj, command)
         except fire.core.FireExit as e:
             return None
-    return wrapper
+    return awrapper if inspect.iscoroutinefunction(obj) else wrapper
 
 def typeswitch(obj):
 
@@ -96,20 +106,7 @@ def typeswitch(obj):
     return awrapper if inspect.iscoroutinefunction(obj) else wrapper
 
 def typefire(func):
-    f = likefire(typeswitch(func))
-    
-    @functools.wraps(func)
-    def awrapper(*args, **kwargs):
-        res = f(*args, **kwargs)
-        async def _awrapper():
-            return res
-        return _awrapper()
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        return f(*args, **kwargs)
-
-    return awrapper if inspect.iscoroutinefunction(func) else wrapper
+    return likefire(typeswitch(func))
 
 def composed(*decs, is_reversed=False):
     def deco(f):
