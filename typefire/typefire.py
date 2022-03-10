@@ -3,7 +3,7 @@ import functools
 import inspect
 from typing import List, Optional, Tuple, Union, Any, Callable, Sequence, Dict
 
-from SimilarNeuron import Switch, Agreement
+from SimilarNeuron import Switch, Agreement, SwitchEmptyError
 
 class TypeFire:
 
@@ -105,8 +105,10 @@ def typeswitch(obj):
 
     return awrapper if inspect.iscoroutinefunction(obj) else wrapper
 
-def typefire(func):
-    return likefire(typeswitch(func))
+def typefire(obj):
+    if inspect.isfunction(obj):
+        return likefire(typeswitch(obj))
+    return likefire(obj)
 
 def composed(*decs, is_reversed=False):
     def deco(f):
