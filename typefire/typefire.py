@@ -72,10 +72,13 @@ class TypeFire:
     def clear(cls):
         return cls.agreement.clear()
 
+state_DisplayError = True
+
 def likefire(obj):
 
     @functools.wraps(obj)
     def awrapper(command: str, *args, **kwargs):
+        global state_DisplayError
         temp = ''
         def get_result(contents, out, prompt=None, check_pager=True):
             nonlocal temp
@@ -84,7 +87,9 @@ def likefire(obj):
             nonlocal temp
             temp += args
         fire.core.console_io.More = get_result
-        fire.core._DisplayError = cover_var({'print':aprint})(fire.core._DisplayError)
+        if state_DisplayError:
+            fire.core._DisplayError = cover_var({'print':aprint})(fire.core._DisplayError)
+            state_DisplayError = False
         try:
             res = fire.Fire(obj, command, obj.__name__ if hasattr(obj, '__name__') else 'obj<name>')
             return res
@@ -96,6 +101,7 @@ def likefire(obj):
 
     @functools.wraps(obj)
     def wrapper(command: str, *args, **kwargs):
+        global state_DisplayError
         temp = ''
         def get_result(contents, out, prompt=None, check_pager=True):
             nonlocal temp
@@ -104,7 +110,9 @@ def likefire(obj):
             nonlocal temp
             temp += args[0]
         fire.core.console_io.More = get_result
-        fire.core._DisplayError = cover_var({'print':aprint})(fire.core._DisplayError)
+        if state_DisplayError:
+            fire.core._DisplayError = cover_var({'print':aprint})(fire.core._DisplayError)
+            state_DisplayError = False
         try:
             res = fire.Fire(obj, command, obj.__name__ if hasattr(obj, '__name__') else 'obj<name>')
             return res
