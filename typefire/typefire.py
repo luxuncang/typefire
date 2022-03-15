@@ -2,6 +2,7 @@ import fire
 import functools
 import inspect
 from typing import List, Optional, Tuple, Union, Any, Callable, Sequence, Dict
+from .tool import cover_var, ctypes
 
 from SimilarNeuron import Switch, Agreement, SwitchEmptyError
 
@@ -75,20 +76,40 @@ def likefire(obj):
 
     @functools.wraps(obj)
     def awrapper(command: str, *args, **kwargs):
+        temp = ''
+        def get_result(contents, out, prompt=None, check_pager=True):
+            nonlocal temp
+            temp = contents
+        def aprint(*args, **kwargs):
+            nonlocal temp
+            temp += args
+        fire.core.console_io.More = get_result
+        fire.core._DisplayError = cover_var({'print':aprint})(fire.core._DisplayError)
         try:
-            res = fire.core.Fire(obj, command)
-        except Exception as e:
-            res = None
+            res = fire.Fire(obj, command, obj.__name__ if hasattr(obj, '__name__') else 'obj<name>')
+            return res
+        except fire.core.FireExit as e:
+            res = temp
         async def _awrapper():
             return res
         return _awrapper()
 
     @functools.wraps(obj)
     def wrapper(command: str, *args, **kwargs):
+        temp = ''
+        def get_result(contents, out, prompt=None, check_pager=True):
+            nonlocal temp
+            temp = contents
+        def aprint(*args, **kwargs):
+            nonlocal temp
+            temp += args[0]
+        fire.core.console_io.More = get_result
+        fire.core._DisplayError = cover_var({'print':aprint})(fire.core._DisplayError)
         try:
-            return fire.Fire(obj, command)
+            res = fire.Fire(obj, command, obj.__name__ if hasattr(obj, '__name__') else 'obj<name>')
+            return res
         except fire.core.FireExit as e:
-            return None
+            return temp
     return awrapper if inspect.iscoroutinefunction(obj) else wrapper
 
 def typeswitch(obj):
