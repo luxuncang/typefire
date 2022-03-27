@@ -85,6 +85,8 @@ main("--path=/some_path_string")
 案例一：
 
 ```python
+from typing import Union
+
 def main(data: Union[bytes, Path, str]):
     if isinstance(data, bytes):
         ...
@@ -99,7 +101,6 @@ def main(data: Union[bytes, Path, str]):
 ```python
 from typefire import Switch, typeswitch, TypeFire
 from pathlib import Path
-from typing import Union
 
 TypeFire.add_switch(Switch(str, bytes, lambda x: open(x, 'rb').read()))
 TypeFire.add_switch(Switch(Path, bytes, lambda x: open(x, 'rb').read()))
