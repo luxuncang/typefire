@@ -13,6 +13,7 @@ pip install typefire
 ```
 
 ## 特性
+
 - 支持注解类型转换
 - 支持 async/await
 - 零入侵性
@@ -78,3 +79,44 @@ def main(path: pathlib.Path, *args, **kwargs):
 main("/some_path_string")
 main("--path=/some_path_string")
 ```
+
+## typeswitch
+
+案例一：
+
+```python
+def main(data: Union[bytes, Path, str]):
+    if isinstance(data, bytes):
+        ...
+    elif isinstance(data, Path):
+        ...
+    elif isinstance(data, str):
+        ...
+```
+
+案例二：
+
+```python
+from typefire import Switch, typeswitch, TypeFire
+from pathlib import Path
+from typing import Union
+
+TypeFire.add_switch(Switch(str, bytes, lambda x: open(x, 'rb').read()))
+TypeFire.add_switch(Switch(Path, bytes, lambda x: open(x, 'rb').read()))
+
+@typeswitch()
+def main(data: bytes):
+    print(type(data))
+
+main(Path('test.py'))
+main('test.py')
+main(open('test.py', 'rb').read())
+
+'''
+<class 'bytes'>
+<class 'bytes'>
+<class 'bytes'>
+'''
+```
+
+*显而易见 使用 `typeswitch` 显的更优雅，复用性更强*

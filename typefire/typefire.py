@@ -40,13 +40,13 @@ class TypeFire:
         return tuple(args), kwargs
 
     @classmethod
-    def switch(cls, func: Callable, *args, **kwargs) -> Dict[str, Any]:
+    def switch(cls, func: Callable, agreement: Agreement, *args, **kwargs) -> Dict[str, Any]:
         func_annotations = cls.get_func_annotations(func)
         func_bind = cls.get_func_bind(func, *args, **kwargs)
         for k,v in func_bind.items():
             if k in func_annotations:
                 if type(v) != func_annotations[k]:
-                    func_bind[k] = cls.agreement.transformation(v, func_annotations[k])
+                    func_bind[k] = agreement.transformation(v, func_annotations[k])
         return cls.general_parameters(func, func_bind)
 
     @classmethod
@@ -76,8 +76,6 @@ class State:
     state_DisplayError = True
 
 def likefire(obj):
-
-    state_DisplayError = True
 
     @functools.wraps(obj)
     def awrapper(command: str, *args, **kwargs):
@@ -121,24 +119,29 @@ def likefire(obj):
             return temp
     return awrapper if inspect.iscoroutinefunction(obj) else wrapper
 
-def typeswitch(obj):
+def typeswitch(agreement: Agreement = TypeFire.agreement):
 
-    @functools.wraps(obj)
-    async def awrapper(*args, **kwargs):
-        args, kwargs = TypeFire.switch(obj, *args, **kwargs)
-        return await obj(*args, **kwargs)
+    def typewrapper(obj):
+        @functools.wraps(obj)
+        async def awrapper(*args, **kwargs):
+            args, kwargs = TypeFire.switch(obj, agreement,*args, **kwargs)
+            return await obj(*args, **kwargs)
 
-    @functools.wraps(obj)
-    def wrapper(*args, **kwargs):
-        args, kwargs = TypeFire.switch(obj, *args, **kwargs)
-        return obj(*args, **kwargs)
+        @functools.wraps(obj)
+        def wrapper(*args, **kwargs):
+            args, kwargs = TypeFire.switch(obj, agreement, *args, **kwargs)
+            return obj(*args, **kwargs)
 
-    return awrapper if inspect.iscoroutinefunction(obj) else wrapper
+        return awrapper if inspect.iscoroutinefunction(obj) else wrapper
+    return typewrapper
 
-def typefire(obj):
-    if inspect.isfunction(obj):
-        return likefire(typeswitch(obj))
-    return likefire(obj)
+
+def typefire(agreement: Agreement = TypeFire.agreement):
+    def wrapper(obj):
+        if inspect.isfunction(obj):
+            return likefire(typeswitch(agreement)(obj))
+        return likefire(obj)
+    return wrapper
 
 def composed(*decs, is_reversed=False):
     def deco(f):
