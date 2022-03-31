@@ -17,6 +17,7 @@ pip install typefire
 - 支持注解类型转换
 - 支持 async/await
 - 零入侵性
+- 支持任意对象
 
 ## Fire
 
@@ -121,3 +122,5 @@ main(open('test.py', 'rb').read())
 ```
 
 *显而易见 使用 `typeswitch` 显的更优雅，复用性更强*
+
+qs: [test](./test/test_typefire.py)

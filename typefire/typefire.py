@@ -1,6 +1,7 @@
 import fire
 import functools
 import inspect
+import copy
 from typing import List, Optional, Tuple, Union, Any, Callable, Sequence, Dict
 from .tool import cover_var, ctypes
 
@@ -59,6 +60,20 @@ class TypeFire:
     def freed_fire(cls):
         fire.core._PrintResult = cls.core._PrintResult
         fire.core.print = print 
+
+    @classmethod
+    def obj_switch(cls, agreement: Agreement):
+        if not hasattr(cls, 'CallAndUpdateTrace'):
+            cls.CallAndUpdateTrace = copy.deepcopy(fire.core._CallAndUpdateTrace)
+        # print(id(cls.CallAndUpdateTrace))
+        def _CallAndUpdateTrace(component, args, component_trace, treatment='class', target=None):
+            fn = component.__call__ if treatment == 'callable' else component
+            if inspect.isfunction(fn) or inspect.ismethod(fn):
+                component = typeswitch(agreement)(fn)
+            return cls.CallAndUpdateTrace(component, args, component_trace, treatment, target)
+        # print(id(_CallAndUpdateTrace))
+        fire.core._CallAndUpdateTrace = _CallAndUpdateTrace
+        # print(id(fire.core._CallAndUpdateTrace))
 
     @classmethod
     def add_switch(cls, agreemap: Switch) -> Any:
@@ -138,8 +153,9 @@ def typeswitch(agreement: Agreement = TypeFire.agreement):
 
 def typefire(agreement: Agreement = TypeFire.agreement):
     def wrapper(obj):
-        if inspect.isfunction(obj):
-            return likefire(typeswitch(agreement)(obj))
+        TypeFire.obj_switch(agreement)
+        # if inspect.isfunction(obj):
+        #     return likefire(typeswitch(agreement)(obj))
         return likefire(obj)
     return wrapper
 
