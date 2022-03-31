@@ -154,8 +154,6 @@ def typeswitch(agreement: Agreement = TypeFire.agreement):
 def typefire(agreement: Agreement = TypeFire.agreement):
     def wrapper(obj):
         TypeFire.obj_switch(agreement)
-        # if inspect.isfunction(obj):
-        #     return likefire(typeswitch(agreement)(obj))
         return likefire(obj)
     return wrapper
 
