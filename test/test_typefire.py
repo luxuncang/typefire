@@ -104,7 +104,3 @@ def test_typefire_class_subclass_method_property():
 # test_typefire_class_subclass_method_static()
 # test_typefire_class_subclass_method_class()
 # test_typefire_class_subclass_method_property()
-
-
-a = BrokenCalculator(1)
-# print(a('add --x=1 --y=2'))
