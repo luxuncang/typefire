@@ -9,7 +9,7 @@ from SimilarNeuron import Switch, Agreement, SwitchEmptyError
 
 class TypeFire:
 
-    agreement = Agreement()
+    agreement: Agreement = Agreement()
 
     @classmethod
     def get_func_annotations(cls, func: Callable) -> Dict[str, Any]:
@@ -139,11 +139,15 @@ def typeswitch(agreement: Agreement = TypeFire.agreement):
     def typewrapper(obj):
         @functools.wraps(obj)
         async def awrapper(*args, **kwargs):
+            if agreement != TypeFire.agreement:
+                agreement.update(TypeFire.agreement, False)
             args, kwargs = TypeFire.switch(obj, agreement,*args, **kwargs)
             return await obj(*args, **kwargs)
 
         @functools.wraps(obj)
         def wrapper(*args, **kwargs):
+            if agreement != TypeFire.agreement:
+                agreement.update(TypeFire.agreement, False)
             args, kwargs = TypeFire.switch(obj, agreement, *args, **kwargs)
             return obj(*args, **kwargs)
 
