@@ -65,15 +65,12 @@ class TypeFire:
     def obj_switch(cls, agreement: Agreement):
         if not hasattr(cls, 'CallAndUpdateTrace'):
             cls.CallAndUpdateTrace = copy.deepcopy(fire.core._CallAndUpdateTrace)
-        # print(id(cls.CallAndUpdateTrace))
         def _CallAndUpdateTrace(component, args, component_trace, treatment='class', target=None):
             fn = component.__call__ if treatment == 'callable' else component
             if inspect.isfunction(fn) or inspect.ismethod(fn):
                 component = typeswitch(agreement)(fn)
             return cls.CallAndUpdateTrace(component, args, component_trace, treatment, target)
-        # print(id(_CallAndUpdateTrace))
         fire.core._CallAndUpdateTrace = _CallAndUpdateTrace
-        # print(id(fire.core._CallAndUpdateTrace))
 
     @classmethod
     def add_switch(cls, agreemap: Switch) -> Any:
