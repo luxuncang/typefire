@@ -15,6 +15,7 @@ pip install typefire
 ## 特性
 
 - 支持注解类型转换
+- 支持字符串类型注解
 - 支持 async/await
 - 零入侵性
 - 支持任意对象
