@@ -36,8 +36,13 @@ class CoverVar(ast.NodeVisitor):
         self.cover = cover
 
     def visit_FunctionDef(self, node):
-        code = 'import ctypes\n'
-        code += '\n'.join([f"{k} = ctypes.cast({id(v)}, ctypes.py_object).value" for k,v in self.cover.items()])
+        code = 'import ctypes\n' + '\n'.join(
+            [
+                f"{k} = ctypes.cast({id(v)}, ctypes.py_object).value"
+                for k, v in self.cover.items()
+            ]
+        )
+
         code_ast = ast.parse(code, mode='exec')
         node.body[:0] = code_ast.body
         self.func = node

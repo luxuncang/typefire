@@ -19,22 +19,23 @@ class TypeFire:
     @classmethod
     def get_func_bind(cls, func: Callable, *args, **kwargs) -> Dict[str, Any]:
         sig = inspect.signature(func)
-        return {k:v for k,v in sig.bind(*args, **kwargs).arguments.items()}
+        return dict(sig.bind(*args, **kwargs).arguments.items())
 
     @classmethod
     def general_parameters(cls, func: Callable, d: dict) -> Tuple[tuple, dict]:
         args = []
-        kwargs = {} 
+        kwargs = {}
         parse_bind = {name:parse.kind for name, parse in inspect.signature(func).parameters.items()}
         for k,v in d.items():
             if k in parse_bind:
                 if parse_bind[k] == inspect.Parameter.VAR_POSITIONAL:
                     args += list(v)
                 elif parse_bind[k] == inspect.Parameter.VAR_KEYWORD:
-                    kwargs.update(v)
-                elif parse_bind[k] == inspect.Parameter.POSITIONAL_OR_KEYWORD:
-                    args.append(v)
-                elif parse_bind[k] == inspect.Parameter.POSITIONAL_ONLY:
+                    kwargs |= v
+                elif parse_bind[k] in [
+                    inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    inspect.Parameter.POSITIONAL_ONLY,
+                ]:
                     args.append(v)
                 elif parse_bind[k] == inspect.Parameter.KEYWORD_ONLY:
                     kwargs[k] = v
@@ -45,9 +46,8 @@ class TypeFire:
         func_annotations = cls.get_func_annotations(func)
         func_bind = cls.get_func_bind(func, *args, **kwargs)
         for k,v in func_bind.items():
-            if k in func_annotations:
-                if type(v) != func_annotations[k]:
-                    func_bind[k] = agreement.transformation(v, func_annotations[k])
+            if k in func_annotations and type(v) != func_annotations[k]:
+                func_bind[k] = agreement.transformation(v, func_annotations[k])
         return cls.general_parameters(func, func_bind)
 
     @classmethod
