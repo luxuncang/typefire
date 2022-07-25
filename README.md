@@ -89,7 +89,7 @@ main("--path=/some_path_string")
 ```python
 from typing import Union
 
-def main(data: Union[bytes, Path, str]):
+def main(data: Union[bytes, Path, str]) -> bytes:
     if isinstance(data, bytes):
         ...
     elif isinstance(data, Path):
